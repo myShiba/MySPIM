@@ -5,44 +5,47 @@
 /* 10 Points */
 void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
-    switch (ALUControl)
-    {
-        case 0: 
-            *ALUresult = A + B; 
+    switch(ALUControl){
+        case 0x0:
+            *ALUresult = A + B;
             break;
-        case 1: 
-            *ALUresult = A - B; 
+        case 0x1:
+            *ALUresult = A - B;
             break;
-        case 2: 
-            *ALUresult = A < B ? 1 : 0; 
-            break; 
-        case 3: 
-            *ALUresult = ((int)A < (int)B) ? 1 : 0; 
+        case 0x2:
+            *ALUresult = (A < B) ? 1 : 0;
             break;
-        case 4: 
-            *ALUresult = A & B; 
+        case 0x3:
+            *ALUresult = (A < (unsigned int)B) ? 1 : 0;
             break;
-        case 5: 
-            *ALUresult = A | B; 
+        case 0x4:
+            *ALUresult = A & B;
             break;
-        case 6: 
-            *ALUresult = B << 16; 
+        case 0x5:
+            *ALUresult = A | B;
             break;
-        case 7: 
-            *ALUresult = !A; 
+        case 0x6:
+            *ALUresult = A << 16;
             break;
-        default: 
-            *ALUresult = 0; 
+        case 0x7:
+            *ALUresult = ~A;
             break;
-    }
-    *Zero = (*ALUresult == 0) ? 1 : 0;
+         }
 }
+
 
 /* instruction fetch */
 /* 10 Points */
 int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 {
-    
+    unsigned adress = PC >> 2;
+    //This will check if the PC is divisible by 4
+    if(PC % 4 != 0){
+        return 1;
+    }
+    //This  will fetch the instruction
+    *instruction = Mem[adress];
+    return 0;
 }
 
 
@@ -50,6 +53,26 @@ int instruction_fetch(unsigned PC,unsigned *Mem,unsigned *instruction)
 /* 10 Points */
 void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsigned *r2, unsigned *r3, unsigned *funct, unsigned *offset, unsigned *jsec)
 {
+    // op (6 bits)
+    *op = (instruction >> 26) & 0x3F;
+
+    // r1 (5 bits)
+    *r1 = (instruction >> 21) & 0x1F;
+
+    // r2 (5 bits)
+    *r2 = (instruction >> 16) & 0x1F;
+
+    // r3 (5 bits)
+    *r3 = (instruction >> 11) & 0x1F;
+
+    // funct (6 bits)
+    *funct = instruction & 0x3F;
+
+    // offset (16 bits)
+    *offset = instruction & 0xFFFF;
+
+    // jsec (26 bits)
+    *jsec = instruction & 0x03FFFFFF;
 
 }
 
