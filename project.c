@@ -99,7 +99,11 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value)
 {
-
+    // 15th bit 1 | 0
+    if(offset & (1 << 15))
+        *extended_value = offset | 0xFFFF0000; // extends upper bits to 1
+    else
+        *extended_value = offset & 0x0000FFFF; // extends upper bits to 0
 }
 
 /* ALU operations */
@@ -113,7 +117,12 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
-
+    // Load word
+    if(MemRead)
+        *memdata = Mem[ALUresult >> 2];
+    // Store word
+    if(MemWrite)
+        Mem[ALUresult >> 2] = data2;
 }
 
 
