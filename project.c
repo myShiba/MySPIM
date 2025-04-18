@@ -96,6 +96,17 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->ALUSrc = 0;
             controls->ALUOp = 7; // Add
             break;
+        case 0x08: //Add immediate
+            controls->RegDst = 0;
+            controls->Jump = 0;
+            controls->Branch = 0;
+            controls->MemRead = 0;
+            controls->MemtoReg = 0;
+            controls->ALUOp = 0x00;
+            controls->MemWrite = 0;
+            controls->ALUSrc = 1;
+            controls->RegWrite = 1;
+            break;
         case 0x02: // J-type instruction
             controls->RegWrite = 0;
             controls->MemRead = 0;
@@ -107,7 +118,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->ALUSrc = 0;
             controls->ALUOp = 0; // Dont care
             break;
-        case 0x04: // I-type instruction (lw)
+        case 0x23: // I-type instruction (lw)
             controls->RegWrite = 1;
             controls->MemRead = 1;
             controls->MemWrite = 0;
@@ -118,7 +129,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->ALUSrc = 1;
             controls->ALUOp = 0; // Add
             break;
-        case 0x05: // I-type instruction (sw)
+        case 0x2B: // I-type instruction (sw)
             controls->RegWrite = 0;
             controls->MemRead = 0;
             controls->MemWrite = 1;
@@ -129,7 +140,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->ALUSrc = 1;
             controls->ALUOp = 0; // Add
             break;
-        case 0x06: // I-type instruction (beq)
+        case 0x04: // I-type instruction (beq)
             controls->RegWrite = 0;
             controls->MemRead = 0;
             controls->MemWrite = 1;
@@ -139,6 +150,39 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->MemtoReg = 2;
             controls->ALUSrc = 1;
             controls->ALUOp = 0; // Subtract
+            break;
+        case 0x0A: //Set less than immediate
+            controls->RegDst = 0;
+            controls->Jump = 0;
+            controls->Branch = 0;
+            controls->MemRead = 0;
+            controls->MemtoReg = 0;
+            controls->ALUOp = 0x02;
+            controls->MemWrite = 0;
+            controls->ALUSrc = 1;
+            controls->RegWrite = 1;
+            break;
+        case 0x0B: //Set less than immediate unsigned
+            controls->RegDst = 0;
+            controls->Jump = 0;
+            controls->Branch = 0;
+            controls->MemRead = 0;
+            controls->MemtoReg = 0;
+            controls->ALUOp = 0x03;
+            controls->MemWrite = 0;
+            controls->ALUSrc = 1;
+            controls->RegWrite = 1;
+            break;
+        case 0x0F: //Load upper immediate
+            controls->RegDst = 0;
+            controls->Jump = 0;
+            controls->Branch = 0;
+            controls->MemRead = 0;
+            controls->MemtoReg = 0;
+            controls->ALUOp = 0x06;
+            controls->MemWrite = 0;
+            controls->ALUSrc = 1;
+            controls->RegWrite = 1;
             break;
         default:
             // Halt condition: unknown opcode
