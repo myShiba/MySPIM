@@ -263,7 +263,6 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
 
     // Increment by 4
     *PC += 4;
-    *PC += 4;
 
     // Update PC with concatenation of
     // • Top 4 bits of old PC
