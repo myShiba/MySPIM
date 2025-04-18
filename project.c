@@ -156,7 +156,6 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
     *data2 = Reg[r2];
 }
 
-
 /* Sign Extend */
 /* 10 Points */
 void sign_extend(unsigned offset,unsigned *extended_value)
@@ -208,6 +207,10 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
+    // Halt conditions
+    if (ALUresult % 4 != 0) return 1; // unaligned address
+    if ((ALUresult >> 2) >= 65536 >> 2) return 1; // out of bounds memory access
+
     // Load word
     if(MemRead){
         if(ALUresult % 4 ==0){
@@ -260,6 +263,7 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
 
     // Increment by 4
     *PC += 4;
+    *PC += 4;
 
     // Update PC with concatenation of
     // • Top 4 bits of old PC
@@ -274,4 +278,3 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
         *PC += (extended_value<<2);
     }
 }
-
