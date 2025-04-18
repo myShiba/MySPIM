@@ -30,7 +30,9 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
         case 0x7:
             *ALUresult = ~A;
             break;
-         }
+        }
+
+        *Zero = (*ALUresult == 0) ? 1 : 0;
 }
 
 
@@ -213,7 +215,7 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
 
     // Load word
     if(MemRead){
-        if(ALUresult % 4 ==0){
+        if((ALUresult % 4) ==0){
             *memdata = Mem[ALUresult >> 2];
         }else{
             return 0;
@@ -221,7 +223,7 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
     }
     // Store word
     if(MemWrite){
-        if(ALUresult % 4 ==0){
+        if((ALUresult % 4) ==0){
             Mem[ALUresult >> 2] = data2;
         }else{
             return 1;
