@@ -32,7 +32,7 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
             break;
         }
 
-        *Zero = (*ALUresult == 0) ? 1 : 0;
+    *Zero = (*ALUresult == 0) ? 1 : 0;
 }
 
 
