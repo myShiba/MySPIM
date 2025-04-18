@@ -80,7 +80,7 @@ void instruction_partition(unsigned instruction, unsigned *op, unsigned *r1,unsi
 
 /* instruction decode */
 /* 15 Points */
-int instruction_decode(unsigned op,struct_controls *controls)
+int instruction_decode(unsigned op, struct_controls *controls)
 {
 
 }
@@ -93,7 +93,6 @@ void read_register(unsigned r1,unsigned r2,unsigned *Reg,unsigned *data1,unsigne
     *data1 = Reg[r1];
     *data2 = Reg[r2];
 }
-
 
 /* Sign Extend */
 /* 10 Points */
@@ -110,19 +109,53 @@ void sign_extend(unsigned offset,unsigned *extended_value)
 /* 10 Points */
 int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigned funct,char ALUOp,char ALUSrc,unsigned *ALUresult,char *Zero)
 {
+    char ALUControl;
+    unsigned B;
 
+    B = ALUSrc ? extended_value : data2; // data2 | extended_value
+
+    switch(ALUOp) {
+        case 0x0 : // lw/sw
+            ALUControl = 0x2; // add
+            break;
+        case 0x1 : // beq
+            ALUControl = 0x6; // sub
+            break;
+        case 0x2 : // R-type
+            switch(funct) {
+                case 0x20 : ALUControl = 0x2; break; // add
+                case 0x22 : ALUControl = 0x6; break; // sub
+                case 0x24 : ALUControl = 0x0; break; // and
+                case 0x25 : ALUControl = 0x1; break; // or
+                case 0x2A : ALUControl = 0x7; break; // slt
+
+                default: return 1; // halt
+            }
+
+        default: return 1; // halt
+    }
+
+    ALU(data1, B, ALUControl, ALUresult, Zero);
+
+    return 0;
 }
 
 /* Read / Write Memory */
 /* 10 Points */
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
+    // Halt conditions
+    if (ALUresult % 4 != 0) return 1; // unaligned address
+    if ((ALUresult >> 2) >= 65536 >> 2) return 1; // out of bounds memory access
+
     // Load word
     if(MemRead)
         *memdata = Mem[ALUresult >> 2];
     // Store word
     if(MemWrite)
         Mem[ALUresult >> 2] = data2;
+
+    return 0;
 }
 
 
@@ -158,7 +191,7 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
 {
 
     // Increment by 4
-    *PC=PC+4;
+    *PC += 4;
 
     // Update PC with concatenation of
     // • Top 4 bits of old PC
@@ -173,4 +206,3 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
         *PC += (extended_value<<2);
     }
 }
-
