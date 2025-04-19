@@ -143,7 +143,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         case 0x04: // I-type instruction (beq)
             controls->RegWrite = 0;
             controls->MemRead = 0;
-            controls->MemWrite = 1;
+            controls->MemWrite = 0;
             controls->RegDst = 0;
             controls->Jump = 0;
             controls->Branch = 1;
@@ -157,7 +157,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->Branch = 0;
             controls->MemRead = 0;
             controls->MemtoReg = 0;
-            controls->ALUOp = 0x02;
+            controls->ALUOp = 2;
             controls->MemWrite = 0;
             controls->ALUSrc = 1;
             controls->RegWrite = 1;
@@ -168,7 +168,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->Branch = 0;
             controls->MemRead = 0;
             controls->MemtoReg = 0;
-            controls->ALUOp = 0x03;
+            controls->ALUOp = 3;
             controls->MemWrite = 0;
             controls->ALUSrc = 1;
             controls->RegWrite = 1;
@@ -179,7 +179,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->Branch = 0;
             controls->MemRead = 0;
             controls->MemtoReg = 0;
-            controls->ALUOp = 0x06;
+            controls->ALUOp = 6;
             controls->MemWrite = 0;
             controls->ALUSrc = 1;
             controls->RegWrite = 1;
@@ -222,26 +222,21 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 
     B = ALUSrc ? extended_value : data2; // data2 | extended_value
 
-    switch(ALUOp) {
-        case 0x0 : // lw/sw
-            ALUControl = 0x2; // add
-            break;
-        case 0x1 : // beq
-            ALUControl = 0x6; // sub
-            break;
-        case 0x2 : // R-type?
-            switch(funct) {
-                case 0x20 : ALUControl = 0x2; break; // add
-                case 0x22 : ALUControl = 0x6; break; // sub
-                case 0x24 : ALUControl = 0x0; break; // and
-                case 0x25 : ALUControl = 0x1; break; // or
-                case 0x2A : ALUControl = 0x7; break; // slt
 
-                default: return 1; // halt
-            }
-            break;
+    if (ALUOp < 0 || ALUOp > 7){
+        return 1;
+    }
+    else if(ALUOp == 7){
+        switch(funct) {
+            case 0x20 : ALUControl = 0; break; // add
+            case 0x22 : ALUControl = 1; break; // sub
+            case 0x2A : ALUControl = 2; break; // slt signed
+            case 0x2B : ALUControl = 3; break; // slt unsigned
+            case 0424 : ALUControl = 4; break; // and
+            case 0x25 : ALUControl = 5; break; // or
 
-        default: return 1; // halt
+            default: return 1; // halt
+        }
     }
 
     ALU(data1, B, ALUControl, ALUresult, Zero);
@@ -273,6 +268,7 @@ int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsig
             return 1;
         }
     }
+    return 0;
 }
 
 
@@ -315,7 +311,7 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
     // • 26-bit jump address
     // • 00
     if(Jump==1){
-        *PC= (jsec<<2) | (*PC | 0xf000000);
+        *PC= (jsec<<2) | (*PC & 0xF0000000);
     }
 
     // If branch and there's a zero, add extended val
