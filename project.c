@@ -102,7 +102,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->Branch = 0;
             controls->MemRead = 0;
             controls->MemtoReg = 0;
-            controls->ALUOp = 0x00;
+            controls->ALUOp = 0;
             controls->MemWrite = 0;
             controls->ALUSrc = 1;
             controls->RegWrite = 1;
@@ -144,12 +144,12 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->RegWrite = 0;
             controls->MemRead = 0;
             controls->MemWrite = 0;
-            controls->RegDst = 0;
+            controls->RegDst = 2;
             controls->Jump = 0;
             controls->Branch = 1;
             controls->MemtoReg = 2;
-            controls->ALUSrc = 1;
-            controls->ALUOp = 0; // Subtract
+            controls->ALUSrc = 0;
+            controls->ALUOp = 1;
             break;
         case 0x0A: //Set less than immediate
             controls->RegDst = 0;
@@ -232,7 +232,7 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
             case 0x22 : ALUControl = 1; break; // sub
             case 0x2A : ALUControl = 2; break; // slt signed
             case 0x2B : ALUControl = 3; break; // slt unsigned
-            case 0424 : ALUControl = 4; break; // and
+            case 0x24 : ALUControl = 4; break; // and
             case 0x25 : ALUControl = 5; break; // or
 
             default: return 1; // halt
@@ -315,7 +315,7 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
     }
 
     // If branch and there's a zero, add extended val
-    else if(Branch==1 && Zero==1){
+    if(Branch==1 && Zero==1){
         *PC += (extended_value<<2);
     }
 }
