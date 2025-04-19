@@ -7,32 +7,32 @@ void ALU(unsigned A,unsigned B,char ALUControl,unsigned *ALUresult,char *Zero)
 {
     switch(ALUControl){
         case 0x0:
-            *ALUresult = A + B;
+            *ALUresult = A + B; // Add
             break;
         case 0x1:
-            *ALUresult = A - B;
+            *ALUresult = A - B; // Sub
             break;
         case 0x2:
-            *ALUresult = (A < B) ? 1 : 0;
+            *ALUresult = (A < B) ? 1 : 0; // SLT signed
             break;
         case 0x3:
-            *ALUresult = (A < (unsigned int)B) ? 1 : 0;
+            *ALUresult = (A < (unsigned int)B) ? 1 : 0; // SLT unsigned
             break;
         case 0x4:
-            *ALUresult = A & B;
+            *ALUresult = A & B; // AND
             break;
         case 0x5:
-            *ALUresult = A | B;
+            *ALUresult = A | B; // OR
             break;
         case 0x6:
-            *ALUresult = A << 16;
+            *ALUresult = B << 16; // Shift
             break;
         case 0x7:
-            *ALUresult = ~A;
+            *ALUresult = ~A; // NOT
             break;
         }
 
-    *Zero = (*ALUresult == 0) ? 1 : 0;
+    *Zero = (*ALUresult == 0) ? 1 : 0; // if zero
 }
 
 
@@ -143,7 +143,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
         case 0x04: // I-type instruction (beq)
             controls->RegWrite = 0;
             controls->MemRead = 0;
-            controls->MemWrite = 0;
+            controls->MemWrite = 1;
             controls->RegDst = 2;
             controls->Jump = 0;
             controls->Branch = 1;
@@ -210,7 +210,7 @@ void sign_extend(unsigned offset,unsigned *extended_value)
     if(offset & (1 << 15))
         *extended_value = offset | 0xFFFF0000; // extends upper bits to 1
     else
-        *extended_value = offset & 0x0000FFFF; // extends upper bits to 0
+        *extended_value = offset; // extends upper bits to 0
 }
 
 /* ALU operations */
@@ -237,6 +237,8 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 
             default: return 1; // halt
         }
+    }else{
+        ALUControl=ALUOp;
     }
 
     ALU(data1, B, ALUControl, ALUresult, Zero);
