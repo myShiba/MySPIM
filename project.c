@@ -311,11 +311,11 @@ void PC_update(unsigned jsec,unsigned extended_value,char Branch,char Jump,char 
     // • 26-bit jump address
     // • 00
     if(Jump==1){
-        *PC= (jsec<<2) | (*PC & 0xF0000000);
+        *PC= (*PC & 0xF0000000) | (jsec<<2);
     }
 
     // If branch and there's a zero, add extended val
     if(Branch==1 && Zero==1){
-        *PC += (extended_value<<2);
+        *PC += extended_value << 2;
     }
 }
