@@ -136,7 +136,7 @@ int instruction_decode(unsigned op, struct_controls *controls) {
             controls->RegDst = 2;
             controls->Jump = 0;
             controls->Branch = 0;
-            controls->MemtoReg = 0;
+            controls->MemtoReg = 2;
             controls->ALUSrc = 1;
             controls->ALUOp = 0; // Add
             break;
@@ -249,15 +249,15 @@ int ALU_operations(unsigned data1,unsigned data2,unsigned extended_value,unsigne
 int rw_memory(unsigned ALUresult,unsigned data2,char MemWrite,char MemRead,unsigned *memdata,unsigned *Mem)
 {
     // Halt conditions
-    if (ALUresult % 4 != 0) return 1; // unaligned address
-    if ((ALUresult >> 2) >= 65536 >> 2) return 1; // out of bounds memory access
+    // if (ALUresult % 4 != 0) return 1; // unaligned address
+    // if ((ALUresult >> 2) >= 65536 >> 2) return 1; // out of bounds memory access
 
     // Load word
     if(MemRead){
         if((ALUresult % 4) ==0){
             *memdata = Mem[ALUresult >> 2];
         }else{
-            return 0;
+            return 1;
         }
     }
     // Store word
